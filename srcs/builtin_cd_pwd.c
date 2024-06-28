@@ -6,7 +6,7 @@
 /*   By: asyed <asyed@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:26:40 by asyed             #+#    #+#             */
-/*   Updated: 2024/06/27 16:00:08 by asyed            ###   ########.fr       */
+/*   Updated: 2024/06/28 12:35:18 by asyed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,31 @@ static void	update_old(t_env **env_list)
 		current = current->next;
 	}
 	ft_add_env_back_node(env_list, ft_new_env_node("OLDPWD", old_pwd));
+}
+
+void	update_pwd(t_env **env_list)
+
+{
+	char	cwd[4086];
+	t_env	*current;
+
+	current = *env_list;
+
+	if (getcwd(cwd, sizeof(cwd)) == NULL)
+	{
+		perror("update pwd");
+		return ;
+	}
+	while (current != NULL)
+	{
+		if (ft_strcmp(current->key, "PWD") == 0)
+		{
+			free(current->value);
+			current->value = ft_strdup(cwd);
+			return ;
+		}
+		current = current->next;
+	}	
 }
 
 int	builtin_cd(char **args, t_env **env_list)
@@ -69,31 +94,6 @@ int	builtin_cd(char **args, t_env **env_list)
 	update_pwd(env_list);
 	return (0);
 }
-void	update_pwd(t_env **env_list)
-
-{
-	char	cwd[4086];
-	t_env	*current;
-
-	current = *env_list;
-
-	if (getcwd(cwd, sizeof(cwd)) == NULL)
-	{
-		perror("update pwd");
-		return ;
-	}
-	while (current != NULL)
-	{
-		if (ft_strcmp(current->key, "PWD") == 0)
-		{
-			free(current->value);
-			current->value = ft_strdup(cwd);
-			return ;
-		}
-		current = current->next;
-	}	
-}
-
 int	builtin_pwd(void)
 
 {

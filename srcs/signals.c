@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ting <ting@student.42singapore.sg>         +#+  +:+       +#+        */
+/*   By: asyed <asyed@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 20:34:26 by asyed             #+#    #+#             */
-/*   Updated: 2024/06/27 22:59:05 by ting             ###   ########.fr       */
+/*   Updated: 2024/06/28 13:14:20 by asyed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ void	cancel_handler(int siggy)
 	t_ms_state	*status;
 	(void)siggy;
 	
+	// printf("cancel_handler called\n");
 	status = *set_stats();
 	if (isatty(STDIN_FILENO))
 	{
@@ -56,7 +57,8 @@ void	cancel_handler(int siggy)
 		rl_replace_line("", 0);
 		rl_redisplay();
 	}
-	g_reset_cancel = 1;
+	if (g_reset_cancel != 2)
+		g_reset_cancel = 1;
 }
 
 int	signal_handlers_setup(t_ms_state *status)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ting <ting@student.42singapore.sg>         +#+  +:+       +#+        */
+/*   By: asyed <asyed@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/15 15:10:54 by ting              #+#    #+#             */
-/*   Updated: 2024/06/27 22:59:17 by ting             ###   ########.fr       */
+/*   Updated: 2024/06/28 17:09:26 by asyed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,34 +124,49 @@ char	*trim_whitespace(char *str)
 	return (str);
 }
 
+void	here_doc_handler(int siggy)
+{
+	(void)siggy;
+	g_reset_cancel = 2;
+    if (isatty(STDIN_FILENO))
+        ft_putstr_fd("\n", STDOUT_FILENO);
+}
+
+int	here_doc_set_up(struct sigaction *old_sa)
+
+{
+	struct sigaction	here_doc;
+	
+	here_doc.sa_handler = here_doc_handler;
+	sigemptyset(&here_doc.sa_mask);
+	here_doc.sa_flags = 0;
+	if (sigaction(SIGINT, &here_doc, old_sa) == -1)
+	{
+		perror("here_doc_ctrl_c");
+		exit (EXIT_FAILURE);
+	}
+	return (0);
+}
+
 void	here_doc(t_cmd *current)
 {
 	char	*line;
 	int		fd;
 	char	*file;
-
+	struct sigaction old_sa;
 	if (!current->hdoc_delimeter)
 		return;
-		
-
 	file = "./heredoc.tmp";
 	fd = open(file, O_CREAT | O_TRUNC | O_WRONLY, 0777);
-
+	if (here_doc_set_up(&old_sa) != 0)
+		return;
 	while (1)
 	{
-		if (g_reset_cancel)
-		{
-			g_reset_cancel = 0;
-			continue;
-		}
-		write(1, "> ", 2);
-		if (g_reset_cancel)
-		{
-			printf("test1\n");
+		if (g_reset_cancel == 2)
 			break;
-		}
+		write(1, "> ", 2);
 		line = get_next_line(0);  // 0 is the file descriptor for standard input
-		if (g_reset_cancel)
+		if (g_reset_cancel == 2)
 		{
 			free (line);
 			break;
@@ -170,14 +185,16 @@ void	here_doc(t_cmd *current)
 		ft_putendl_fd(line, fd);
 		free(line);
 	}
-
+	if (sigaction(SIGINT, &old_sa, NULL) == -1)
+	{
+		perror("sigaction");
+		exit(EXIT_FAILURE);
+	}
 	close(fd);
-
 	if (!current->infile)
 		current->infile = ft_calloc(2, sizeof(char *));
 	add_to_arr(&(current->infile), file);
 }
-
 
 void	do_single_cmd(t_cmd **cmds, t_env **env, t_ms_state *status)
 {

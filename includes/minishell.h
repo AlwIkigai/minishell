@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ting <ting@student.42singapore.sg>         +#+  +:+       +#+        */
+/*   By: asyed <asyed@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 16:12:23 by ting              #+#    #+#             */
-/*   Updated: 2024/06/27 18:30:24 by ting             ###   ########.fr       */
+/*   Updated: 2024/06/28 13:39:34 by asyed            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ void				sigexit_handler(t_cmd **cmds, t_env **env_dup,
 						t_ms_state *status);
 int					signal_handlers_setup(t_ms_state *status);
 void				cancel_handler(int siggy);
+int					here_doc_set_up(struct sigaction *old_sa);
 t_ms_state			**set_stats(void);
 void				extract_stats(t_ms_state *extraction);
 
